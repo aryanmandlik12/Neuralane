@@ -1,0 +1,197 @@
+{% from "_logo.html" import logo as logo_macro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ skill.name }} — Neuralane</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <script>(function(){var t='{{ user_theme }}';if(t==='auto'){var h=new Date().getHours();t=(h>=6&&h<19)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="roadmap-page">
+
+  <div class="bg-particles" id="particles"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">{{ logo_macro() }}</a>
+      <div class="header-actions">
+      {% if skill.days %}
+        <button class="reset-btn" onclick="resetProgress('{{ skill.id }}')">Reset</button>
+        {% endif %}
+        {% if user %}
+        <div class="user-menu" id="userMenu">
+          <button class="user-trigger" onclick="toggleDropdown()">
+            <div class="user-avatar">{{ user['username'][0].upper() }}</div>
+            <span class="user-name">{{ user['username'] }}</span>
+            <span class="ud-arrow">▾</span>
+          </button>
+          <div class="user-dropdown" id="userDropdown">
+            <div class="ud-header">
+              <div class="ud-avatar">{{ user['username'][0].upper() }}</div>
+              <div>
+                <div class="ud-username">{{ user['username'] }}</div>
+                <div class="ud-email">{{ user['email'] }}</div>
+              </div>
+            </div>
+            <div class="ud-divider"></div>
+            <a href="/profile" class="ud-item">👤 View Profile</a>
+            <div class="ud-divider"></div>
+            <a href="/logout" class="ud-item ud-logout">🚪 Logout</a>
+          </div>
+        </div>
+        {% else %}
+        <div class="guest-actions">
+          <a href="/login" class="guest-login-btn">Login</a>
+          <a href="/register" class="guest-register-btn">Sign Up</a>
+        </div>
+        {% endif %}
+      </div><!-- /.header-actions -->
+    </div>
+  </header>
+
+  <main class="roadmap-main">
+
+    <!-- Skill Hero -->
+    <div class="roadmap-hero">
+      <div class="rh-icon">{{ skill.icon }}</div>
+      <div class="rh-info">
+        <div class="rh-badge">Skill Roadmap</div>
+        <h1 class="rh-title">{{ skill.name }}</h1>
+        {% if skill.about %}
+        <p class="rh-about">{{ skill.about }}</p>
+        {% endif %}
+      </div>
+
+      {% if skill.days %}
+      <div class="rh-progress-block" id="progressBlock">
+        <div class="rpb-circle">
+          <svg viewBox="0 0 36 36" class="circular-chart">
+            <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+            <path class="circle-fill" id="circleArc"
+              stroke-dasharray="{{ completion }}, 100"
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+          </svg>
+          <div class="rpb-pct" id="progressPct">{{ completion }}%</div>
+        </div>
+        <div class="rpb-label">
+          <span id="checkedCount">{{ checked_topics|length }}</span> / <span>{{ total_topics }}</span> topics
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Playlist link -->
+    {% if skill.playlist %}
+    <div class="playlist-banner">
+      <div class="pb-left">
+        <span class="pb-icon">▶</span>
+        <div>
+          <div class="pb-label">YouTube Playlist</div>
+          <div class="pb-url">{{ skill.playlist }}</div>
+        </div>
+      </div>
+      <a href="{{ skill.playlist }}" target="_blank" class="pb-btn">Open Playlist →</a>
+    </div>
+    {% elif skill.playlist_note is defined and skill.playlist_note %}
+    <div class="playlist-banner playlist-note">
+      <div class="pb-left">
+        <span class="pb-icon">📚</span>
+        <div>
+          <div class="pb-label">Reference</div>
+          <div class="pb-url">{{ skill.playlist_note }}</div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Day-wise roadmap -->
+    {% if skill.days %}
+    <div class="roadmap-content">
+      <div class="rc-header">
+        <h2>Day-wise Roadmap</h2>
+        <div class="rc-actions">
+            <button class="check-all-btn" onclick="checkAll('{{ skill.id }}')">Check All</button>
+          <button class="uncheck-all-btn" onclick="uncheckAll('{{ skill.id }}')">Uncheck All</button>
+        </div>
+      </div>
+
+
+      <div class="days-list" id="daysList">
+        {% for day in skill.days %}
+        <div class="day-card" id="day-card-{{ loop.index }}">
+          <div class="day-header" onclick="toggleDay({{ loop.index }})">
+            <div class="dh-left">
+              <div class="day-badge">{{ day.label }}</div>
+              <div class="day-topic-count">
+                <span class="dtc-checked" id="dtc-{{ loop.index }}">
+                  {{ checked_topics | select_in(day.topics) | list | length }}
+                </span>
+                / {{ day.topics|length }} topics
+              </div>
+            </div>
+            <div class="dh-right">
+              <div class="day-mini-bar">
+                {% set day_checked = checked_topics | select_in(day.topics) | list | length %}
+                {% set day_pct = ((day_checked / day.topics|length) * 100)|int %}
+                <div class="dmb-fill" id="dmb-{{ loop.index }}" style="width: {{ day_pct }}%"></div>
+              </div>
+              <span class="day-toggle" id="toggle-{{ loop.index }}">▼</span>
+            </div>
+          </div>
+
+          <div class="day-topics" id="topics-{{ loop.index }}">
+            {% for topic in day.topics %}
+            <label class="topic-item {% if topic in checked_topics %}topic-checked{% endif %}"
+                   id="label-{{ skill.id }}-{{ loop.index }}">
+              <input type="checkbox"
+                     class="topic-checkbox"
+                     data-skill="{{ skill.id }}"
+                     data-topic="{{ topic }}"
+                     data-day="{{ loop.index0 + 1 }}"
+                     {% if topic in checked_topics %}checked{% endif %}
+                     onchange="handleCheck(this)"/>
+              <span class="checkmark"></span>
+              <span class="topic-text">{{ topic }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% else %}
+    <!-- No roadmap detail available -->
+    <div class="no-roadmap">
+      <div class="nr-icon">📋</div>
+      <h3>Detailed Roadmap Coming Soon</h3>
+      <p>The day-wise breakdown for this skill will be added shortly.<br/>
+         For now, follow the playlist linked above to get started.</p>
+    </div>
+    {% endif %}
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with 🤍 by Aryan Mandlik</p>
+  </footer>
+
+  <script>
+    const SKILL_ID = "{{ skill.id }}";
+    const TOTAL_TOPICS = {{ total_topics }};
+  </script>
+  <script>
+    window.AIFORGE_USER_ID     = {{ user['id'] | tojson if user else 'null' }};
+    window.AIFORGE_SAVED_THEME = {{ user['theme'] | tojson if user else 'null' }};
+  </script>
+  <script src="{{ url_for('static', filename='js/roadmap.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ufo.js') }}"></script>
+</body>
+</html>

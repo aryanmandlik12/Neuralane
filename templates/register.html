@@ -1,0 +1,185 @@
+{% from "_logo.html" import logo as logo_macro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register — Neuralane</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <script>(function(){var t=localStorage.getItem('aiforge-theme')||'light';if(t==='auto'){var h=new Date().getHours();t=(h>=6&&h<19)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-page">
+
+  <div class="bg-particles" id="particles"></div>
+
+  <div class="auth-wrapper">
+
+    <!-- Left panel -->
+    <div class="auth-left">
+      <a href="/" class="al-logo logo">{{ logo_macro() }}</a>
+      <h2 class="al-title">Start forging your<br/>AI skills today.</h2>
+      <p class="al-sub">Create a free account to track your progress, pick up where you left off, and complete your roadmap at your own pace.</p>
+
+      <div class="al-features">
+        <div class="alf-item">
+          <span class="alf-icon">✓</span>
+          <span>Day-by-day structured roadmap</span>
+        </div>
+        <div class="alf-item">
+          <span class="alf-icon">✓</span>
+          <span>Persistent progress tracking</span>
+        </div>
+        <div class="alf-item">
+          <span class="alf-icon">✓</span>
+          <span>15 curated tech skills</span>
+        </div>
+        <div class="alf-item">
+          <span class="alf-icon">✓</span>
+          <span>YouTube playlist links included</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel — form -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <div class="ac-header">
+          <h1 class="ac-title">Create account</h1>
+          <p class="ac-sub">Join and start tracking your AI learning progress</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/register" class="auth-form" id="registerForm">
+          <div class="form-group">
+            <label class="form-label">Username</label>
+            <input
+              type="text"
+              name="username"
+              class="form-input"
+              placeholder="Choose a username (min 3 chars)"
+              required
+              minlength="3"
+              autofocus
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Address</label>
+            <input
+              type="email"
+              name="email"
+              class="form-input"
+              placeholder="you@example.com"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                name="password"
+                id="regPassword"
+                class="form-input"
+                placeholder="At least 6 characters"
+                required
+                minlength="6"
+                oninput="checkStrength(this.value)"
+              />
+              <button type="button" class="toggle-pw" onclick="togglePw('regPassword', this)">👁</button>
+            </div>
+            <div class="pw-strength" id="pwStrength">
+              <div class="pws-bar">
+                <div class="pws-fill" id="pwsFill"></div>
+              </div>
+              <span class="pws-label" id="pwsLabel"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                name="confirm"
+                id="regConfirm"
+                class="form-input"
+                placeholder="Repeat your password"
+                required
+              />
+              <button type="button" class="toggle-pw" onclick="togglePw('regConfirm', this)">👁</button>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-btn" onclick="return validateForm()">Create Account →</button>
+        </form>
+
+        <p class="auth-switch">
+          Already have an account? <a href="/login">Sign in</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>window.AIFORGE_USER_ID = null; window.AIFORGE_SAVED_THEME = null;</script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ufo.js') }}"></script>
+  <script>
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁' : '🙈';
+    }
+
+    function checkStrength(pw) {
+      const fill  = document.getElementById('pwsFill');
+      const label = document.getElementById('pwsLabel');
+      if (!pw) { fill.style.width = '0'; label.textContent = ''; return; }
+
+      let score = 0;
+      if (pw.length >= 6)  score++;
+      if (pw.length >= 10) score++;
+      if (/[A-Z]/.test(pw)) score++;
+      if (/[0-9]/.test(pw)) score++;
+      if (/[^A-Za-z0-9]/.test(pw)) score++;
+
+      const levels = [
+        { w: '20%',  color: '#ef4444', text: 'Too weak' },
+        { w: '40%',  color: '#f97316', text: 'Weak' },
+        { w: '60%',  color: '#f59e0b', text: 'Fair' },
+        { w: '80%',  color: '#22c55e', text: 'Strong' },
+        { w: '100%', color: '#06b6d4', text: 'Very strong' },
+      ];
+      const l = levels[Math.min(score - 1, 4)] || levels[0];
+      fill.style.width  = l.w;
+      fill.style.background = l.color;
+      label.textContent = l.text;
+      label.style.color = l.color;
+    }
+
+    function validateForm() {
+      const pw  = document.getElementById('regPassword').value;
+      const cfm = document.getElementById('regConfirm').value;
+      if (pw !== cfm) {
+        showToast('Passwords do not match.', 'error');
+        return false;
+      }
+      return true;
+    }
+  </script>
+</body>
+</html>

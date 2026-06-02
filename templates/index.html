@@ -1,0 +1,139 @@
+{% from "_logo.html" import logo as logo_macro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neuralane — Build Your AI Skills</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <script>(function(){var t='{{ user_theme }}';if(t==='auto'){var h=new Date().getHours();t=(h>=6&&h<19)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <!-- Animated background particles -->
+  <div class="bg-particles" id="particles"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">{{ logo_macro() }}</a>
+      {% if user %}
+      <div class="user-menu" id="userMenu">
+        <button class="user-trigger" onclick="toggleDropdown()">
+          <div class="user-avatar">{{ user['username'][0].upper() }}</div>
+          <span class="user-name">{{ user['username'] }}</span>
+          <span class="ud-arrow">▾</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-header">
+            <div class="ud-avatar">{{ user['username'][0].upper() }}</div>
+            <div>
+              <div class="ud-username">{{ user['username'] }}</div>
+              <div class="ud-email">{{ user['email'] }}</div>
+            </div>
+          </div>
+          <div class="ud-divider"></div>
+          <a href="/profile" class="ud-item">👤 View Profile</a>
+          <div class="ud-divider"></div>
+          <a href="/logout" class="ud-item ud-logout">🚪 Logout</a>
+        </div>
+      </div>
+      {% else %}
+      <div class="guest-actions">
+        <a href="/login" class="guest-login-btn">Login</a>
+        <a href="/register" class="guest-register-btn">Sign Up</a>
+      </div>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="main-content">
+    <section class="hero">
+      <div class="hero-badge">Your Learning Path</div>
+      <h1 class="hero-title">
+        Forge Your <span class="gradient-text">AI</span><br/>Skills from Scratch
+      </h1>
+      <p class="hero-subtitle">
+        One platform. Every AI skill you need.
+      </p>
+
+      <!-- Overall progress bar -->
+      {% set total_progress = (skills | sum(attribute='progress')) // (skills|length) %}
+      <div class="overall-progress">
+        <div class="op-header">
+          <span>Overall Progress</span>
+          <span class="op-pct">{{ total_progress }}%</span>
+        </div>
+        <div class="op-bar">
+          <div class="op-fill" style="width: {{ total_progress }}%"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="skills-section">
+      <div class="section-header">
+        <h2>Tech Skills</h2>
+        <p>Select a skill to view its day-by-day roadmap and track your progress</p>
+      </div>
+
+      <div class="skills-grid">
+        {% for skill in skills %}
+        <a href="/roadmap/{{ skill.id }}" class="skill-card {% if skill.status == 'completed' %}card-completed{% elif skill.progress > 0 %}card-inprogress{% endif %}"
+             data-skill="{{ skill.id }}">
+          <div class="card-top">
+            <div class="card-icon">{{ skill.icon }}</div>
+            <div class="card-num">#{{ loop.index }}</div>
+          </div>
+
+          <h3 class="card-title">{{ skill.name }}</h3>
+
+
+          <div class="card-progress">
+            <div class="cp-header">
+              <span class="cp-label">Progress</span>
+              <span class="cp-pct">{{ skill.progress }}%</span>
+            </div>
+            <div class="cp-bar">
+              <div class="cp-fill" style="width: {{ skill.progress }}%"></div>
+            </div>
+          </div>
+
+          <div class="card-status-row">
+            {% if skill.status == 'completed' or skill.progress == 100 %}
+              <span class="status-badge status-done">✓ Completed</span>
+            {% elif skill.progress > 0 %}
+              <span class="status-badge status-progress">◐ In Progress</span>
+            {% else %}
+              <span class="status-badge status-pending">○ Not Started</span>
+            {% endif %}
+          </div>
+
+          <div class="card-btn">
+            {% if skill.days %}
+              View Roadmap →
+            {% else %}
+              View Details →
+            {% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with 🤍 by Aryan Mandlik</p>
+  </footer>
+
+  <script>
+    window.AIFORGE_USER_ID    = {{ user['id'] | tojson if user else 'null' }};
+    window.AIFORGE_SAVED_THEME = {{ user['theme'] | tojson if user else 'null' }};
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ufo.js') }}"></script>
+</body>
+</html>

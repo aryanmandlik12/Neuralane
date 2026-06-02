@@ -1,0 +1,29 @@
+{% macro logo(size="sm", theme="light", show_wordmark=True) %}
+{%- set icon_px = 64 if size == "lg" else 32 -%}
+{%- set rx = (icon_px / 2) | int -%}
+{%- set navy_r = (icon_px * 0.375) | int -%}
+{%- set cx = (icon_px / 2) -%}
+{%- set cy = (icon_px / 2) -%}
+{%- set font_sz = (navy_r * 2 * 0.52) | int -%}
+{%- set n_y = (cy + navy_r * 0.35) | round(1) -%}
+{%- set dot_dist = (navy_r * 0.70) | round(2) -%}
+{%- set dot_r = (navy_r * 0.14) | round(2) -%}
+{%- set dot_x = (cx + dot_dist * 0.7071) | round(2) -%}
+{%- set dot_y = (cy - dot_dist * 0.7071) | round(2) -%}
+{%- set white_r = (dot_r * 0.35) | round(2) -%}
+{%- if theme == "dark" -%}
+  {%- set bg_fill = "#1E2A3A" -%}
+{%- else -%}
+  {%- set bg_fill = "var(--logo-bg)" -%}
+{%- endif -%}
+<svg class="nl-icon" width="{{ icon_px }}" height="{{ icon_px }}" viewBox="0 0 {{ icon_px }} {{ icon_px }}" fill="none" aria-hidden="true">
+  <rect width="{{ icon_px }}" height="{{ icon_px }}" rx="{{ rx }}" fill="{{ bg_fill }}"/>
+  <circle cx="{{ cx }}" cy="{{ cy }}" r="{{ navy_r }}" fill="#1A3A6B"/>
+  <text x="{{ cx }}" y="{{ n_y }}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="{{ font_sz }}" fill="#fff">n</text>
+  <circle cx="{{ dot_x }}" cy="{{ dot_y }}" r="{{ dot_r }}" fill="#F5831F"/>
+  <circle cx="{{ dot_x }}" cy="{{ dot_y }}" r="{{ white_r }}" fill="#fff"/>
+</svg>
+{%- if show_wordmark -%}
+<span class="logo-wordmark"><span class="logo-neura">Neura</span><span class="logo-lane">Lane</span></span>
+{%- endif -%}
+{% endmacro %}

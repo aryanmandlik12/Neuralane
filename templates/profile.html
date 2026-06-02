@@ -1,0 +1,350 @@
+{% from "_logo.html" import logo as logo_macro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ user['username'] }}'s Profile — Neuralane</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <script>(function(){var t='{{ user_theme }}';if(t==='auto'){var h=new Date().getHours();t=(h>=6&&h<19)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+  <div class="bg-particles" id="particles"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="logo">{{ logo_macro() }}</a>
+      <div class="user-menu" id="userMenu">
+        <button class="user-trigger" onclick="toggleDropdown()">
+          <div class="user-avatar">{{ user['username'][0].upper() }}</div>
+          <span class="user-name">{{ user['username'] }}</span>
+          <span class="ud-arrow">▾</span>
+        </button>
+        <div class="user-dropdown" id="userDropdown">
+          <div class="ud-header">
+            <div class="ud-avatar">{{ user['username'][0].upper() }}</div>
+            <div>
+              <div class="ud-username">{{ user['username'] }}</div>
+              <div class="ud-email">{{ user['email'] }}</div>
+            </div>
+          </div>
+          <div class="ud-divider"></div>
+          <a href="/profile" class="ud-item">👤 View Profile</a>
+          <div class="ud-divider"></div>
+          <a href="/logout" class="ud-item ud-logout">🚪 Logout</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="profile-main">
+
+    <!-- ── Profile Hero ────────────────────────────────── -->
+    <section class="profile-hero">
+      <div class="ph-cover"></div>
+      <div class="ph-body">
+        <div class="ph-avatar-wrap">
+          <div class="ph-avatar">{{ user['username'][0].upper() }}</div>
+        </div>
+        <div class="ph-info">
+          <h1 class="ph-name">{{ user['username'] }}</h1>
+          <p class="ph-email">{{ user['email'] }}</p>
+          <p class="ph-joined">Member since {{ user['created'][:10] }}</p>
+        </div>
+        <div class="ph-badges">
+          {% if stats.learned > 0 %}
+          <div class="ph-badge badge-gold">🏆 {{ stats.learned }} Skill{{ 's' if stats.learned != 1 }} Mastered</div>
+          {% endif %}
+          {% if stats.overall_pct >= 50 %}
+          <div class="ph-badge badge-blue">⚡ Halfway There</div>
+          {% endif %}
+          {% if stats.ongoing > 0 %}
+          <div class="ph-badge badge-purple">🔥 Active Learner</div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Activity Dashboard ─────────────────────────── -->
+    <section class="profile-section">
+      <div class="ps-label">Activity Dashboard</div>
+      <h2 class="ps-title">Your Learning Overview</h2>
+
+      <!-- Stat cards -->
+      <div class="activity-grid">
+        <div class="act-card act-overall">
+          <div class="ac-top">
+            <span class="ac-icon">🎯</span>
+            <span class="ac-label">Overall Progress</span>
+          </div>
+          <div class="ac-big">{{ stats.overall_pct }}%</div>
+          <div class="ac-bar-wrap">
+            <div class="ac-bar">
+              <div class="ac-fill" style="width:{{ stats.overall_pct }}%"></div>
+            </div>
+          </div>
+          <div class="ac-sub">{{ stats.topics_done }} / {{ stats.topics_total }} topics completed</div>
+        </div>
+
+        <div class="act-card">
+          <div class="ac-top">
+            <span class="ac-icon">✅</span>
+            <span class="ac-label">Completed</span>
+          </div>
+          <div class="ac-big ac-green">{{ stats.learned }}</div>
+          <div class="ac-sub">Skills fully mastered</div>
+        </div>
+
+        <div class="act-card">
+          <div class="ac-top">
+            <span class="ac-icon">📖</span>
+            <span class="ac-label">In Progress</span>
+          </div>
+          <div class="ac-big ac-amber">{{ stats.ongoing }}</div>
+          <div class="ac-sub">Skills currently active</div>
+        </div>
+
+        <div class="act-card">
+          <div class="ac-top">
+            <span class="ac-icon">🗺️</span>
+            <span class="ac-label">Not Started</span>
+          </div>
+          <div class="ac-big ac-muted">{{ stats.not_started }}</div>
+          <div class="ac-sub">Skills waiting to begin</div>
+        </div>
+      </div>
+
+      <!-- Activity heatmap -->
+      <div class="heatmap-card">
+
+        <!-- Top stat strip -->
+        <div class="hm-stat-strip">
+          <div class="hm-stat">
+            <span class="hm-stat-num">{{ heatmap.total_active_days }}</span>
+            <span class="hm-stat-lbl">days active</span>
+          </div>
+          <div class="hm-stat-divider"></div>
+          <div class="hm-stat">
+            <span class="hm-stat-num streak-fire">{{ heatmap.current_streak }}</span>
+            <span class="hm-stat-lbl">day streak</span>
+          </div>
+          <div class="hm-stat-divider"></div>
+          <div class="hm-stat">
+            <span class="hm-stat-num streak-best">{{ heatmap.longest_streak }}</span>
+            <span class="hm-stat-lbl">best streak</span>
+          </div>
+          <div class="hm-stat-meta">
+            <span>past 12 months</span>
+          </div>
+        </div>
+
+        <!-- Grid area -->
+        <div class="hm-grid-area">
+          <div class="hm-month-row" id="hmMonths"></div>
+          <div class="hm-grid-wrap">
+            <div class="hm-day-labels">
+              <span>Mon</span>
+              <span>Wed</span>
+              <span>Fri</span>
+            </div>
+            <div class="hm-grid" id="hmGrid"></div>
+          </div>
+        </div>
+
+        <!-- Footer row -->
+        <div class="hm-footer">
+          <div class="hm-legend">
+            <span class="hml-label">Less</span>
+            <div class="hml-cell hml-0"></div>
+            <div class="hml-cell hml-1"></div>
+            <div class="hml-cell hml-2"></div>
+            <div class="hml-cell hml-3"></div>
+            <div class="hml-cell hml-4"></div>
+            <span class="hml-label">More</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Per-skill progress bars -->
+      <div class="skill-progress-list">
+        <h3 class="spl-title">Skills Breakdown</h3>
+        <div class="spl-items">
+          {% set active_skills = learned + ongoing %}
+          {% if active_skills %}
+          {% for sk in active_skills %}
+          <div class="spl-row">
+            <div class="spl-left">
+              <span class="spl-icon">{{ sk.icon }}</span>
+              <span class="spl-name">{{ sk.name }}</span>
+            </div>
+            <div class="spl-bar-wrap">
+              <div class="spl-bar">
+                <div class="spl-fill {% if sk.progress == 100 %}fill-green{% else %}fill-accent{% endif %}"
+                     style="width:{{ sk.progress }}%"></div>
+              </div>
+            </div>
+            <span class="spl-pct {% if sk.progress == 100 %}pct-green{% else %}pct-accent{% endif %}">
+              {{ sk.progress }}%
+            </span>
+          </div>
+          {% endfor %}
+          {% else %}
+          <p class="spl-empty">No skills started yet — <a href="/">browse the roadmap</a> to begin!</p>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Learned Skills ─────────────────────────────── -->
+    <section class="profile-section">
+      <div class="ps-label">Completed</div>
+      <h2 class="ps-title">Learned Skills
+        <span class="ps-count">{{ stats.learned }}</span>
+      </h2>
+      {% if learned %}
+      <div class="mini-skill-grid">
+        {% for sk in learned %}
+        <a href="/roadmap/{{ sk.id }}" class="mini-skill-card msc-done">
+          <div class="msc-top">
+            <span class="msc-icon">{{ sk.icon }}</span>
+            <span class="msc-check">✓</span>
+          </div>
+          <div class="msc-name">{{ sk.name }}</div>
+          <div class="msc-meta">{{ sk.done }} / {{ sk.total }} topics</div>
+          <div class="msc-bar">
+            <div class="msc-fill" style="width:100%"></div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="es-icon">🎓</div>
+        <p>No skills completed yet — keep going!</p>
+        <a href="/" class="es-btn">Browse Roadmap →</a>
+      </div>
+      {% endif %}
+    </section>
+
+    <!-- ── Ongoing Skills ─────────────────────────────── -->
+    <section class="profile-section">
+      <div class="ps-label">In Progress</div>
+      <h2 class="ps-title">Ongoing Skills
+        <span class="ps-count ps-count-amber">{{ stats.ongoing }}</span>
+      </h2>
+      {% if ongoing %}
+      <div class="mini-skill-grid">
+        {% for sk in ongoing %}
+        <a href="/roadmap/{{ sk.id }}" class="mini-skill-card msc-ongoing">
+          <div class="msc-top">
+            <span class="msc-icon">{{ sk.icon }}</span>
+            <span class="msc-pct-badge">{{ sk.progress }}%</span>
+          </div>
+          <div class="msc-name">{{ sk.name }}</div>
+          <div class="msc-meta">{{ sk.done }} / {{ sk.total }} topics</div>
+          <div class="msc-bar">
+            <div class="msc-fill msc-fill-amber" style="width:{{ sk.progress }}%"></div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="es-icon">📚</div>
+        <p>No skills in progress — start one from the roadmap!</p>
+        <a href="/" class="es-btn">Browse Roadmap →</a>
+      </div>
+      {% endif %}
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>Made with 🤍 by Aryan Mandlik</p>
+  </footer>
+
+  <script>
+    window.AIFORGE_USER_ID     = {{ user['id'] | tojson }};
+    window.AIFORGE_SAVED_THEME = {{ user['theme'] | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ufo.js') }}"></script>
+  <script>
+    // ── Heatmap data from server ──────────────────────────
+    const HEATMAP_WEEKS = {{ heatmap.weeks | tojson }};
+    const MONTH_LABELS  = {{ heatmap.month_labels | tojson }};
+    const MAX_COUNT     = {{ heatmap.max_count }};
+
+    document.addEventListener('DOMContentLoaded', () => {
+
+      // Animate stat bars
+      document.querySelectorAll('.ac-fill, .spl-fill, .msc-fill').forEach(el => {
+        const target = el.style.width;
+        el.style.width = '0';
+        setTimeout(() => { el.style.width = target; }, 100);
+      });
+
+      // ── Build heatmap grid ──────────────────────────────
+      const grid   = document.getElementById('hmGrid');
+      const months = document.getElementById('hmMonths');
+
+      // Month label row (positioned by week index)
+      const totalWeeks = HEATMAP_WEEKS.length;
+      MONTH_LABELS.forEach(m => {
+        const span = document.createElement('span');
+        span.textContent = m.label;
+        span.style.gridColumn = (m.week + 1) + '';
+        months.appendChild(span);
+      });
+
+      // Create tooltip
+      const tooltip = document.createElement('div');
+      tooltip.className = 'hm-tooltip';
+      document.body.appendChild(tooltip);
+
+      // Build cells
+      HEATMAP_WEEKS.forEach((week, wi) => {
+        week.forEach((cell, di) => {
+          const div = document.createElement('div');
+          div.className = 'hm-cell';
+
+          if (cell.future) {
+            div.classList.add('hmc-future');
+          } else if (cell.count === 0) {
+            div.classList.add('hmc-0');
+          } else {
+            const level = cell.count >= 8 ? 4 : cell.count >= 5 ? 3 : cell.count >= 3 ? 2 : 1;
+            div.classList.add('hmc-' + level);
+          }
+
+          // Tooltip
+          div.addEventListener('mouseenter', (e) => {
+            if (cell.future) return;
+            const d    = new Date(cell.date + 'T00:00:00');
+            const label = d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+            tooltip.textContent = cell.count === 0
+              ? `No activity — ${label}`
+              : `${cell.count} topic${cell.count > 1 ? 's' : ''} completed — ${label}`;
+            tooltip.classList.add('visible');
+          });
+          div.addEventListener('mousemove', (e) => {
+            tooltip.style.left = (e.clientX + 12) + 'px';
+            tooltip.style.top  = (e.clientY - 28) + 'px';
+          });
+          div.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+
+          grid.appendChild(div);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

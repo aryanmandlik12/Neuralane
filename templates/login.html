@@ -1,0 +1,104 @@
+{% from "_logo.html" import logo as logo_macro %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — Neuralane</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
+  <script>(function(){var t=localStorage.getItem('aiforge-theme')||'light';if(t==='auto'){var h=new Date().getHours();t=(h>=6&&h<19)?'light':'dark';}document.documentElement.setAttribute('data-theme',t);})();</script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-page">
+
+  <div class="bg-particles" id="particles"></div>
+
+  <div class="auth-wrapper">
+
+    <!-- Left panel -->
+    <div class="auth-left">
+      <a href="/" class="al-logo logo">{{ logo_macro() }}</a>
+      <h2 class="al-title">Forge Your AI Skills<br/>one day at a time.</h2>
+      <p class="al-sub">Track your progress across 15 curated AI & engineering skills — Python, ML, Deep Learning, Transformers, LangChain, and beyond.</p>
+      <div class="al-skills">
+        <span class="als-tag">🐍 Python</span>
+        <span class="als-tag">🤖 Machine Learning</span>
+        <span class="als-tag">🧠 Deep Learning</span>
+        <span class="als-tag">🦜 LangChain</span>
+        <span class="als-tag">🔍 RAG</span>
+        <span class="als-tag">⚡ Transformers</span>
+      </div>
+    </div>
+
+    <!-- Right panel — form -->
+    <div class="auth-right">
+      <div class="auth-card">
+        <div class="ac-header">
+          <h1 class="ac-title">Welcome back</h1>
+          <p class="ac-sub">Sign in to continue your learning journey</p>
+        </div>
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/login" class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Username or Email</label>
+            <input
+              type="text"
+              name="identifier"
+              class="form-input"
+              placeholder="Enter your username or email"
+              required
+              autofocus
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                name="password"
+                id="loginPassword"
+                class="form-input"
+                placeholder="Enter your password"
+                required
+              />
+              <button type="button" class="toggle-pw" onclick="togglePw('loginPassword', this)">👁</button>
+            </div>
+          </div>
+
+          <button type="submit" class="auth-btn">Sign In →</button>
+        </form>
+
+        <p class="auth-switch">
+          Don't have an account? <a href="/register">Create one</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <script>window.AIFORGE_USER_ID = null; window.AIFORGE_SAVED_THEME = null;</script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/ufo.js') }}"></script>
+  <script>
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁' : '🙈';
+    }
+  </script>
+</body>
+</html>
