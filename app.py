@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.secret_key = "aiforge-secret-key-2024"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB = os.path.join(BASE_DIR, "users.db")
+DB = "/tmp/users.db" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "users.db")
 
 
 # ── Jinja filter ──────────────────────────────────────────────────────────────
