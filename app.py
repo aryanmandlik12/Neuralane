@@ -11,10 +11,9 @@ from data import roadmap_data, skills_order
 app = Flask(__name__)
 app.secret_key = "aiforge-secret-key-2024"
 
-BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
-DATABASE_URL = os.environ.get("DATABASE_URL", "")
-USING_PG    = DATABASE_URL.startswith("postgres")
-DB_PATH     = os.path.join(BASE_DIR, "users.db")  # only used for SQLite
+BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
+USING_PG  = bool(os.environ.get("DB_HOST"))
+DB_PATH   = os.path.join(BASE_DIR, "users.db")  # only used for SQLite
 
 
 # ── Jinja filter ──────────────────────────────────────────────────────────────
@@ -28,15 +27,12 @@ def get_db():
     if USING_PG:
         import psycopg2
         import psycopg2.extras
-        from urllib.parse import urlparse, unquote
-        url = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-        r   = urlparse(url)
         conn = psycopg2.connect(
-            host=r.hostname,
-            port=r.port or 5432,
-            dbname=r.path.lstrip("/"),
-            user=r.username,
-            password=unquote(r.password),
+            host=os.environ["DB_HOST"],
+            port=int(os.environ.get("DB_PORT", 5432)),
+            dbname=os.environ.get("DB_NAME", "postgres"),
+            user=os.environ.get("DB_USER", "postgres"),
+            password=os.environ["DB_PASSWORD"],
             sslmode="require",
             cursor_factory=psycopg2.extras.RealDictCursor,
         )
