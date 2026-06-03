@@ -29,7 +29,9 @@ def get_db():
         import psycopg2
         import psycopg2.extras
         url = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-        conn = psycopg2.connect(url, cursor_factory=psycopg2.extras.RealDictCursor)
+        conn = psycopg2.connect(url,
+                                cursor_factory=psycopg2.extras.RealDictCursor,
+                                sslmode="require")
         return conn
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
@@ -120,7 +122,6 @@ def init_db():
 
 @app.before_request
 def ensure_db():
-    init_db()
     uid = session.get("user_id")
     if uid:
         db   = get_db()
@@ -479,6 +480,8 @@ def save_theme():
     db.close()
     return jsonify({"success": True})
 
+
+init_db()
 
 if __name__ == "__main__":
     app.run(debug=True, port=8080)
