@@ -11,8 +11,10 @@ from data import roadmap_data, skills_order
 app = Flask(__name__)
 app.secret_key = "aiforge-secret-key-2024"
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB = "/tmp/users.db" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "users.db")
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+DATABASE_URL = os.environ.get("DATABASE_URL", "")
+USING_PG    = DATABASE_URL.startswith("postgres")
+DB_PATH     = os.path.join(BASE_DIR, "users.db")  # only used for SQLite
 
 
 # ── Jinja filter ──────────────────────────────────────────────────────────────
@@ -21,53 +23,108 @@ def select_in_filter(iterable, collection):
     return [item for item in collection if item in iterable]
 
 
-# ── Database ──────────────────────────────────────────────────────────────────
+# ── Database helpers ───────────────────────────────────────────────────────────
 def get_db():
-    conn = sqlite3.connect(DB, check_same_thread=False)
+    if USING_PG:
+        import psycopg2
+        import psycopg2.extras
+        url = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+        conn = psycopg2.connect(url, cursor_factory=psycopg2.extras.RealDictCursor)
+        return conn
+    conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 
+def db_exec(conn, sql, params=()):
+    """Execute SQL on either backend and return a cursor."""
+    if USING_PG:
+        cur = conn.cursor()
+        cur.execute(sql, params)
+        return cur
+    # SQLite: convert %s → ?
+    cur = conn.execute(sql.replace("%s", "?"), params)
+    return cur
+
+
 def init_db():
-    conn = sqlite3.connect(DB)
-    conn.executescript("""
-        CREATE TABLE IF NOT EXISTS users (
-            id       INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT    UNIQUE NOT NULL,
-            email    TEXT    UNIQUE NOT NULL,
-            password TEXT    NOT NULL,
-            created  TEXT    DEFAULT (datetime('now')),
-            theme    TEXT    DEFAULT 'light'
-        );
-        CREATE TABLE IF NOT EXISTS progress (
-            user_id    INTEGER NOT NULL,
-            skill_id   TEXT    NOT NULL,
-            topic      TEXT    NOT NULL,
-            checked_at TEXT    DEFAULT (date('now')),
-            PRIMARY KEY (user_id, skill_id, topic),
-            FOREIGN KEY (user_id) REFERENCES users(id)
-        );
-    """)
-    # Migrations
-    ucols = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
-    if "theme" not in ucols:
-        conn.execute("ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'")
-    pcols = [r[1] for r in conn.execute("PRAGMA table_info(progress)").fetchall()]
-    if "checked_at" not in pcols:
-        conn.execute("ALTER TABLE progress ADD COLUMN checked_at TEXT DEFAULT (date('now'))")
-    conn.commit()
+    conn = get_db()
+    if USING_PG:
+        cur = conn.cursor()
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id       SERIAL PRIMARY KEY,
+                username TEXT   UNIQUE NOT NULL,
+                email    TEXT   UNIQUE NOT NULL,
+                password TEXT   NOT NULL,
+                created  TIMESTAMPTZ DEFAULT NOW(),
+                theme    TEXT   DEFAULT 'light'
+            )
+        """)
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS progress (
+                user_id    INTEGER NOT NULL,
+                skill_id   TEXT    NOT NULL,
+                topic      TEXT    NOT NULL,
+                checked_at DATE    DEFAULT CURRENT_DATE,
+                PRIMARY KEY (user_id, skill_id, topic),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        # Safe column migrations
+        cur.execute("""
+            DO $$ BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='users' AND column_name='theme'
+                ) THEN ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'; END IF;
+            END $$
+        """)
+        cur.execute("""
+            DO $$ BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name='progress' AND column_name='checked_at'
+                ) THEN ALTER TABLE progress ADD COLUMN checked_at DATE DEFAULT CURRENT_DATE; END IF;
+            END $$
+        """)
+        conn.commit()
+    else:
+        conn.executescript("""
+            CREATE TABLE IF NOT EXISTS users (
+                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT    UNIQUE NOT NULL,
+                email    TEXT    UNIQUE NOT NULL,
+                password TEXT    NOT NULL,
+                created  TEXT    DEFAULT (datetime('now')),
+                theme    TEXT    DEFAULT 'light'
+            );
+            CREATE TABLE IF NOT EXISTS progress (
+                user_id    INTEGER NOT NULL,
+                skill_id   TEXT    NOT NULL,
+                topic      TEXT    NOT NULL,
+                checked_at TEXT    DEFAULT (date('now')),
+                PRIMARY KEY (user_id, skill_id, topic),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            );
+        """)
+        ucols = [r[1] for r in conn.execute("PRAGMA table_info(users)").fetchall()]
+        if "theme" not in ucols:
+            conn.execute("ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'")
+        pcols = [r[1] for r in conn.execute("PRAGMA table_info(progress)").fetchall()]
+        if "checked_at" not in pcols:
+            conn.execute("ALTER TABLE progress ADD COLUMN checked_at TEXT DEFAULT (date('now'))")
+        conn.commit()
     conn.close()
 
 
-# Run before every request
 @app.before_request
 def ensure_db():
     init_db()
-    # Clear session if the stored user_id no longer exists in DB
     uid = session.get("user_id")
     if uid:
         db   = get_db()
-        user = db.execute("SELECT id FROM users WHERE id=?", (uid,)).fetchone()
+        user = db_exec(db, "SELECT id FROM users WHERE id = %s", (uid,)).fetchone()
         db.close()
         if not user:
             session.clear()
@@ -79,10 +136,10 @@ def current_user():
     if not uid:
         return None
     db   = get_db()
-    user = db.execute("SELECT * FROM users WHERE id=?", (uid,)).fetchone()
+    user = db_exec(db, "SELECT * FROM users WHERE id = %s", (uid,)).fetchone()
     db.close()
     if user is None:
-        session.clear()  # stale cookie — user deleted from DB
+        session.clear()
     return user
 
 
@@ -99,7 +156,7 @@ def login_required(f):
 # ── Progress helpers ──────────────────────────────────────────────────────────
 def get_user_progress(user_id):
     db   = get_db()
-    rows = db.execute("SELECT skill_id, topic FROM progress WHERE user_id=?", (user_id,)).fetchall()
+    rows = db_exec(db, "SELECT skill_id, topic FROM progress WHERE user_id = %s", (user_id,)).fetchall()
     db.close()
     progress = {}
     for r in rows:
@@ -141,15 +198,15 @@ def register():
         if not error:
             try:
                 db = get_db()
-                db.execute(
-                    "INSERT INTO users (username, email, password) VALUES (?,?,?)",
+                db_exec(db,
+                    "INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                     (username, email, generate_password_hash(password))
                 )
                 db.commit()
                 db.close()
                 flash("Account created! Please log in.", "success")
                 return redirect(url_for("login"))
-            except sqlite3.IntegrityError:
+            except Exception:
                 error = "Username or email already exists."
 
         flash(error, "error")
@@ -165,8 +222,8 @@ def login():
         password   = request.form.get("password", "")
 
         db   = get_db()
-        user = db.execute(
-            "SELECT * FROM users WHERE username=? OR email=?",
+        user = db_exec(db,
+            "SELECT * FROM users WHERE username = %s OR email = %s",
             (identifier, identifier.lower())
         ).fetchone()
         db.close()
@@ -191,23 +248,25 @@ def logout():
 # ── Heatmap helper ────────────────────────────────────────────────────────────
 def build_heatmap(user_id):
     today = date.today()
-    # Start from the Sunday of the week 52 weeks ago
     start = today - timedelta(weeks=52)
-    start = start - timedelta(days=start.weekday() + 1)  # rewind to Sunday
-    if start.weekday() != 6:                              # ensure it IS Sunday
+    start = start - timedelta(days=start.weekday() + 1)
+    if start.weekday() != 6:
         start = start - timedelta(days=(start.weekday() + 1) % 7)
 
     db   = get_db()
-    rows = db.execute(
+    rows = db_exec(db,
         "SELECT checked_at, COUNT(*) as cnt FROM progress "
-        "WHERE user_id=? AND checked_at IS NOT NULL GROUP BY checked_at",
+        "WHERE user_id = %s AND checked_at IS NOT NULL GROUP BY checked_at",
         (user_id,)
     ).fetchall()
     db.close()
 
-    activity = {r["checked_at"]: r["cnt"] for r in rows}
+    # Normalise: Postgres returns date objects, SQLite returns strings
+    activity = {}
+    for r in rows:
+        key = r["checked_at"].isoformat() if hasattr(r["checked_at"], "isoformat") else r["checked_at"]
+        activity[key] = r["cnt"]
 
-    # Build weeks (columns) × 7 days
     weeks = []
     day   = start
     while day <= today:
@@ -219,7 +278,6 @@ def build_heatmap(user_id):
             day += timedelta(days=1)
         weeks.append(week)
 
-    # Month labels — find first day of each month in range
     month_labels = []
     seen = set()
     for w_idx, week in enumerate(weeks):
@@ -234,17 +292,14 @@ def build_heatmap(user_id):
                     "week":  w_idx
                 })
 
-    # Streak calculation
     current_streak = longest_streak = temp = 0
     d = today
-    # current streak: walk backwards from today
     while d >= start:
         if activity.get(d.isoformat(), 0) > 0:
             current_streak += 1
             d -= timedelta(days=1)
         else:
             break
-    # longest streak: walk full range
     d = start
     while d <= today:
         if activity.get(d.isoformat(), 0) > 0:
@@ -254,19 +309,17 @@ def build_heatmap(user_id):
             temp = 0
         d += timedelta(days=1)
 
-    total_active_days = len([v for v in activity.values() if v > 0])
-
     return {
-        "weeks":            weeks,
-        "month_labels":     month_labels,
-        "current_streak":   current_streak,
-        "longest_streak":   longest_streak,
-        "total_active_days": total_active_days,
-        "max_count":        max(activity.values(), default=1),
+        "weeks":             weeks,
+        "month_labels":      month_labels,
+        "current_streak":    current_streak,
+        "longest_streak":    longest_streak,
+        "total_active_days": len([v for v in activity.values() if v > 0]),
+        "max_count":         max(activity.values(), default=1),
     }
 
 
-# ── Profile route ────────────────────────────────────────────────────────────
+# ── Profile route ─────────────────────────────────────────────────────────────
 @app.route("/profile")
 @login_required
 def profile():
@@ -274,7 +327,7 @@ def profile():
     user     = current_user()
     progress = get_user_progress(uid)
 
-    skills_data = []
+    skills_data        = []
     total_topics_all   = 0
     completed_topics   = 0
 
@@ -294,23 +347,20 @@ def profile():
             "progress": pct,
         })
 
-    learned   = [s for s in skills_data if s["progress"] == 100 and s["total"] > 0]
-    ongoing   = [s for s in skills_data if 0 < s["progress"] < 100]
+    learned     = [s for s in skills_data if s["progress"] == 100 and s["total"] > 0]
+    ongoing     = [s for s in skills_data if 0 < s["progress"] < 100]
     not_started = [s for s in skills_data if s["progress"] == 0]
-
     overall_pct = round((completed_topics / total_topics_all) * 100) if total_topics_all else 0
 
     stats = {
-        "total_skills":     len(skills_order),
-        "learned":          len(learned),
-        "ongoing":          len(ongoing),
-        "not_started":      len(not_started),
-        "topics_done":      completed_topics,
-        "topics_total":     total_topics_all,
-        "overall_pct":      overall_pct,
+        "total_skills": len(skills_order),
+        "learned":      len(learned),
+        "ongoing":      len(ongoing),
+        "not_started":  len(not_started),
+        "topics_done":  completed_topics,
+        "topics_total": total_topics_all,
+        "overall_pct":  overall_pct,
     }
-
-    heatmap = build_heatmap(uid)
 
     return render_template(
         "profile.html",
@@ -319,7 +369,7 @@ def profile():
         learned=learned,
         ongoing=ongoing,
         not_started=not_started,
-        heatmap=heatmap,
+        heatmap=build_heatmap(uid),
         user_theme=user["theme"],
     )
 
@@ -334,8 +384,8 @@ def index():
         s = roadmap_data[sid].copy()
         s["progress"] = compute_skill_progress(sid, progress)
         skills.append(s)
-    user_theme = user["theme"] if user else "light"
-    return render_template("index.html", skills=skills, user=user, user_theme=user_theme)
+    return render_template("index.html", skills=skills, user=user,
+                           user_theme=user["theme"] if user else "light")
 
 
 @app.route("/roadmap/<skill_id>")
@@ -347,16 +397,14 @@ def roadmap(skill_id):
     progress       = get_user_progress(user["id"]) if user else {}
     checked_topics = set(progress.get(skill_id, []))
     total_topics   = sum(len(d["topics"]) for d in skill["days"])
-    completion     = compute_skill_progress(skill_id, progress)
-    user_theme     = user["theme"] if user else "light"
     return render_template(
         "roadmap.html",
         skill=skill,
         checked_topics=checked_topics,
         total_topics=total_topics,
-        completion=completion,
+        completion=compute_skill_progress(skill_id, progress),
         user=user,
-        user_theme=user_theme,
+        user_theme=user["theme"] if user else "light",
     )
 
 
@@ -372,26 +420,35 @@ def update_progress():
     if not skill_id or topic is None:
         return jsonify({"error": "Invalid data"}), 400
 
-    uid = session["user_id"]
-    db  = get_db()
+    uid   = session["user_id"]
+    today = date.today().isoformat()
+    db    = get_db()
     if checked:
-        db.execute(
-            "INSERT OR IGNORE INTO progress (user_id, skill_id, topic, checked_at) VALUES (?,?,?,date('now'))",
-            (uid, skill_id, topic)
-        )
+        if USING_PG:
+            db_exec(db,
+                "INSERT INTO progress (user_id, skill_id, topic, checked_at) "
+                "VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING",
+                (uid, skill_id, topic, today)
+            )
+        else:
+            db_exec(db,
+                "INSERT OR IGNORE INTO progress (user_id, skill_id, topic, checked_at) "
+                "VALUES (%s, %s, %s, %s)",
+                (uid, skill_id, topic, today)
+            )
     else:
-        db.execute(
-            "DELETE FROM progress WHERE user_id=? AND skill_id=? AND topic=?",
+        db_exec(db,
+            "DELETE FROM progress WHERE user_id = %s AND skill_id = %s AND topic = %s",
             (uid, skill_id, topic)
         )
     db.commit()
     db.close()
 
-    progress = get_user_progress(uid)
-    skill    = roadmap_data.get(skill_id)
-    total    = sum(len(d["topics"]) for d in skill["days"]) if skill else 0
+    progress      = get_user_progress(uid)
+    skill         = roadmap_data.get(skill_id)
+    total         = sum(len(d["topics"]) for d in skill["days"]) if skill else 0
     checked_count = len(progress.get(skill_id, []))
-    pct      = round((checked_count / total) * 100) if total else 0
+    pct           = round((checked_count / total) * 100) if total else 0
 
     return jsonify({"success": True, "completion": pct,
                     "checked_count": checked_count, "total": total})
@@ -402,7 +459,7 @@ def update_progress():
 def reset_progress(skill_id):
     uid = session["user_id"]
     db  = get_db()
-    db.execute("DELETE FROM progress WHERE user_id=? AND skill_id=?", (uid, skill_id))
+    db_exec(db, "DELETE FROM progress WHERE user_id = %s AND skill_id = %s", (uid, skill_id))
     db.commit()
     db.close()
     return jsonify({"success": True})
@@ -417,7 +474,7 @@ def save_theme():
         return jsonify({"error": "Invalid theme"}), 400
     uid = session["user_id"]
     db  = get_db()
-    db.execute("UPDATE users SET theme=? WHERE id=?", (theme, uid))
+    db_exec(db, "UPDATE users SET theme = %s WHERE id = %s", (theme, uid))
     db.commit()
     db.close()
     return jsonify({"success": True})
