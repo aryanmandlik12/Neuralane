@@ -343,11 +343,8 @@ def roadmap(skill_id):
     skill = roadmap_data.get(skill_id)
     if not skill:
         return "Skill not found", 404
-    user = current_user()
-    if not user:
-        flash("Please log in to view the full roadmap.", "info")
-        return redirect(url_for("login"))
-    progress       = get_user_progress(user["id"])
+    user           = current_user()
+    progress       = get_user_progress(user["id"]) if user else {}
     checked_topics = set(progress.get(skill_id, []))
     total_topics   = sum(len(d["topics"]) for d in skill["days"])
     completion     = compute_skill_progress(skill_id, progress)

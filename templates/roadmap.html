@@ -20,7 +20,7 @@
     <div class="header-inner">
       <a href="/" class="logo">{{ logo_macro() }}</a>
       <div class="header-actions">
-      {% if skill.days %}
+      {% if skill.days and user %}
         <button class="reset-btn" onclick="resetProgress('{{ skill.id }}')">Reset</button>
         {% endif %}
         {% if user %}
@@ -114,10 +114,14 @@
     <div class="roadmap-content">
       <div class="rc-header">
         <h2>Day-wise Roadmap</h2>
+        {% if user %}
         <div class="rc-actions">
-            <button class="check-all-btn" onclick="checkAll('{{ skill.id }}')">Check All</button>
+          <button class="check-all-btn" onclick="checkAll('{{ skill.id }}')">Check All</button>
           <button class="uncheck-all-btn" onclick="uncheckAll('{{ skill.id }}')">Uncheck All</button>
         </div>
+        {% else %}
+        <a href="/login" class="guest-track-btn">Login to track progress →</a>
+        {% endif %}
       </div>
 
 
@@ -154,7 +158,7 @@
                      data-topic="{{ topic }}"
                      data-day="{{ loop.index0 + 1 }}"
                      {% if topic in checked_topics %}checked{% endif %}
-                     onchange="handleCheck(this)"/>
+                     {% if not user %}disabled title="Login to track progress"{% else %}onchange="handleCheck(this)"{% endif %}/>
               <span class="checkmark"></span>
               <span class="topic-text">{{ topic }}</span>
             </label>

@@ -701,6 +701,14 @@ svg defs { display: block; }
 }
 .uncheck-all-btn:hover { background: rgba(224,74,74,0.16); }
 
+.guest-track-btn {
+  font-size: 0.82rem; font-weight: 600;
+  color: var(--orange); border: 1px solid rgba(245,131,31,0.35);
+  background: rgba(245,131,31,0.07); border-radius: var(--radius-sm);
+  padding: 6px 14px; transition: all 0.2s;
+}
+.guest-track-btn:hover { background: rgba(245,131,31,0.15); }
+
 /* Day cards */
 .days-list { display: flex; flex-direction: column; gap: 12px; }
 
