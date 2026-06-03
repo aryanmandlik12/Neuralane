@@ -28,10 +28,18 @@ def get_db():
     if USING_PG:
         import psycopg2
         import psycopg2.extras
+        from urllib.parse import urlparse, unquote
         url = DATABASE_URL.replace("postgres://", "postgresql://", 1)
-        conn = psycopg2.connect(url,
-                                cursor_factory=psycopg2.extras.RealDictCursor,
-                                sslmode="require")
+        r   = urlparse(url)
+        conn = psycopg2.connect(
+            host=r.hostname,
+            port=r.port or 5432,
+            dbname=r.path.lstrip("/"),
+            user=r.username,
+            password=unquote(r.password),
+            sslmode="require",
+            cursor_factory=psycopg2.extras.RealDictCursor,
+        )
         return conn
     conn = sqlite3.connect(DB_PATH, check_same_thread=False)
     conn.row_factory = sqlite3.Row
