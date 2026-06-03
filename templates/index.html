@@ -84,7 +84,7 @@
         <a href="/roadmap/{{ skill.id }}" class="skill-card {% if skill.status == 'completed' %}card-completed{% elif skill.progress > 0 %}card-inprogress{% endif %}"
              data-skill="{{ skill.id }}">
           <div class="card-top">
-            <div class="card-icon">{{ skill.icon }}</div>
+            <div class="card-icon"><img src="{{ skill.icon }}" class="skill-icon-img" alt="{{ skill.name }}"></div>
             <div class="card-num">#{{ loop.index }}</div>
           </div>
 

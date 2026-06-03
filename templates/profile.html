@@ -181,7 +181,7 @@
           {% for sk in active_skills %}
           <div class="spl-row">
             <div class="spl-left">
-              <span class="spl-icon">{{ sk.icon }}</span>
+              <span class="spl-icon"><img src="{{ sk.icon }}" class="skill-icon-img" alt="{{ sk.name }}"></span>
               <span class="spl-name">{{ sk.name }}</span>
             </div>
             <div class="spl-bar-wrap">
@@ -213,7 +213,7 @@
         {% for sk in learned %}
         <a href="/roadmap/{{ sk.id }}" class="mini-skill-card msc-done">
           <div class="msc-top">
-            <span class="msc-icon">{{ sk.icon }}</span>
+            <span class="msc-icon"><img src="{{ sk.icon }}" class="skill-icon-img" alt="{{ sk.name }}"></span>
             <span class="msc-check">✓</span>
           </div>
           <div class="msc-name">{{ sk.name }}</div>
@@ -244,7 +244,7 @@
         {% for sk in ongoing %}
         <a href="/roadmap/{{ sk.id }}" class="mini-skill-card msc-ongoing">
           <div class="msc-top">
-            <span class="msc-icon">{{ sk.icon }}</span>
+            <span class="msc-icon"><img src="{{ sk.icon }}" class="skill-icon-img" alt="{{ sk.name }}"></span>
             <span class="msc-pct-badge">{{ sk.progress }}%</span>
           </div>
           <div class="msc-name">{{ sk.name }}</div>

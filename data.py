@@ -2,7 +2,7 @@ roadmap_data = {
     "python": {
         "id": "python",
         "name": "Python",
-        "icon": "🐍",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvb1RYR-iTA_hzckhdONtSW4",
         "about": "Python is a high-level, general-purpose programming language known for its clean syntax and readability. It powers data science, machine learning, web development, and automation, making it the go-to language for AI engineers.",
@@ -95,7 +95,7 @@ roadmap_data = {
     "machine-learning": {
         "id": "machine-learning",
         "name": "Machine Learning",
-        "icon": "🤖",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/scikitlearn/scikitlearn-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvbr7zKYQuBfsVkjoLcJgxHH",
         "about": "Machine Learning is a branch of AI that enables computers to learn patterns from data without being explicitly programmed. It underpins recommendation systems, fraud detection, image recognition, and virtually every modern AI application.",
@@ -131,7 +131,7 @@ roadmap_data = {
     "deep-learning": {
         "id": "deep-learning",
         "name": "Deep Learning",
-        "icon": "🧠",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tensorflow/tensorflow-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvYuZauWaPlRTC54KxSNLtNn",
         "about": "Deep Learning uses multi-layered neural networks to learn complex representations from raw data like images, audio, and text. It is the technology behind face recognition, self-driving cars, voice assistants, and large language models.",
@@ -237,7 +237,7 @@ roadmap_data = {
     "transformer": {
         "id": "transformer",
         "name": "Transformer Architecture",
-        "icon": "⚡",
+        "icon": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
         "status": "not started",
         "playlist": None,
         "playlist_note": "100 Days of Deep Learning — Lecture 80 to Lecture 84",
@@ -279,7 +279,7 @@ roadmap_data = {
     "pytorch": {
         "id": "pytorch",
         "name": "PyTorch / TensorFlow",
-        "icon": "🔥",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pytorch/pytorch-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvboy8bmDCjwNHgTaYH2puK7",
         "about": "PyTorch is a flexible deep learning framework widely used in research and production. TensorFlow is Google's production-grade ML platform. Together they are the two dominant frameworks for building, training, and deploying neural network models.",
@@ -336,7 +336,7 @@ roadmap_data = {
     "nlp": {
         "id": "nlp",
         "name": "NLP Fundamentals",
-        "icon": "💬",
+        "icon": "https://upload.wikimedia.org/wikipedia/commons/8/88/SpaCy_logo.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvZo7fp5kkIth6nRTeQQsjfX",
         "about": "Natural Language Processing (NLP) is the field of AI focused on enabling machines to understand, interpret, and generate human language. It powers chatbots, sentiment analysis, machine translation, search engines, and text summarization.",
@@ -394,7 +394,7 @@ roadmap_data = {
     "rag": {
         "id": "rag",
         "name": "RAG",
-        "icon": "🔍",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/elasticsearch/elasticsearch-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_Rmva0dRLWEHLznSHKbFD_RJfX",
         "about": "Retrieval-Augmented Generation (RAG) combines a language model with a vector search engine to ground responses in real documents. It is used to build Q&A systems, document chatbots, and knowledge bases that stay accurate and up-to-date.",
@@ -450,7 +450,7 @@ roadmap_data = {
     "langchain": {
         "id": "langchain",
         "name": "Gen AI using LangChain",
-        "icon": "🦜",
+        "icon": "https://cdn.simpleicons.org/langchain",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvaTbihpo4MtzVm4XOQa0ER0",
         "about": "LangChain is a framework for building applications powered by large language models. It provides chains, agents, memory, and tool integrations that let you connect LLMs to APIs, databases, and external data sources with minimal boilerplate.",
@@ -526,7 +526,7 @@ roadmap_data = {
     "mlops": {
         "id": "mlops",
         "name": "ML OPS",
-        "icon": "⚙️",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/kubernetes/kubernetes-plain.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvaKHYjy5v0dJh8edeaEWb-b",
         "about": "MLOps (Machine Learning Operations) applies DevOps principles to the ML lifecycle — covering model versioning, experiment tracking, CI/CD pipelines, deployment, monitoring, and reproducibility. It bridges the gap between data science and production engineering.",
@@ -549,7 +549,7 @@ roadmap_data = {
     "claude-code": {
         "id": "claude-code",
         "name": "Claude Code (Agentic Coding)",
-        "icon": "🤖",
+        "icon": "https://cdn.simpleicons.org/anthropic",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvaYH3poI0oJvbDF4zEvpq8W",
         "about": "Claude Code is Anthropic's AI-powered agentic coding tool that can read, write, and reason about entire codebases. It enables developers to automate complex engineering tasks, refactor code, write tests, and ship features using natural language.",
@@ -604,7 +604,7 @@ roadmap_data = {
     "hugging-face": {
         "id": "hugging-face",
         "name": "Hugging Face",
-        "icon": "🤗",
+        "icon": "https://huggingface.co/front/assets/huggingface_logo-noborder.svg",
         "status": "not started",
         "playlist": None,
         "about": "Hugging Face is the hub of the open-source AI community, hosting thousands of pre-trained models, datasets, and Spaces. Its Transformers library lets you fine-tune and deploy state-of-the-art NLP, vision, and multimodal models in just a few lines of code.",
@@ -614,7 +614,7 @@ roadmap_data = {
     "ollama": {
         "id": "ollama",
         "name": "Ollama",
-        "icon": "🦙",
+        "icon": "https://cdn.simpleicons.org/ollama",
         "status": "not started",
         "playlist": "https://youtu.be/YcAYmIFtA0o?si=SYIU_OrirSL7BMW",
         "about": "Ollama lets you run open-source large language models (LLaMA, Mistral, Gemma, and more) entirely on your local machine with a single command. It exposes a REST API compatible with OpenAI's interface, making local LLM integration straightforward.",
@@ -637,7 +637,7 @@ roadmap_data = {
     "fastapi": {
         "id": "fastapi",
         "name": "FastAPI",
-        "icon": "🚀",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/fastapi/fastapi-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvZ41tjbKB2ZnwchfniNsMuQ",
         "about": "FastAPI is a modern, high-performance Python web framework for building REST APIs. It uses Python type hints to auto-generate interactive documentation and validate requests, making it the preferred choice for serving ML models and building AI backends.",
@@ -697,7 +697,7 @@ roadmap_data = {
     "docker": {
         "id": "docker",
         "name": "Docker",
-        "icon": "🐳",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg",
         "status": "not started",
         "playlist": "https://youtu.be/GToyQTGDOS4?si=PYIaOjcdnoiaUEzi",
         "about": "Docker packages applications and their dependencies into lightweight, portable containers that run consistently across any environment. It is essential for deploying ML models and AI services reliably from a laptop to the cloud.",
@@ -722,7 +722,7 @@ roadmap_data = {
     "n8n": {
         "id": "n8n",
         "name": "N8N",
-        "icon": "🔗",
+        "icon": "https://cdn.simpleicons.org/n8n",
         "status": "not started",
         "playlist": "https://youtu.be/LGqaSsSLz68?si=8WSGyedc-25qBjPv",
         "about": "N8N is a powerful open-source workflow automation tool that connects apps, APIs, and AI models through a visual node editor. It lets you build complex automations — from data pipelines to AI agent workflows — without writing boilerplate code.",
@@ -746,7 +746,7 @@ roadmap_data = {
     "github": {
         "id": "github",
         "name": "Git & GitHub",
-        "icon": "🐙",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg",
         "status": "not started",
         "playlist": "https://youtu.be/tRctqKXhoow?si=QGNHMthlTFlOS3Zb",
         "about": "Git is the industry-standard version control system that tracks every change in your codebase. GitHub adds collaboration on top — pull requests, code review, and CI/CD. Every developer and data scientist needs Git & GitHub from day one.",
@@ -781,7 +781,7 @@ roadmap_data = {
     "maths-for-ml": {
         "id": "maths-for-ml",
         "name": "Maths for ML",
-        "icon": "📐",
+        "icon": "https://cdn.simpleicons.org/latex",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvbYFaaeLY28cWeqV-3vADST",
         "about": "Machine learning is built on mathematics. This roadmap covers the three pillars — Linear Algebra, Calculus, and Statistics & Probability — giving you the intuition and tools to understand every ML algorithm from scratch.",
@@ -932,7 +932,7 @@ roadmap_data = {
     "sql": {
         "id": "sql",
         "name": "SQL",
-        "icon": "🗄️",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvYun1_5r9Fb4eQigioPB7yn",
         "about": "SQL (Structured Query Language) is the universal language for querying and managing relational databases. Data scientists and ML engineers use SQL daily to extract, filter, aggregate, and join datasets before feeding them into models.",
@@ -979,7 +979,7 @@ roadmap_data = {
     "numpy": {
         "id": "numpy",
         "name": "NumPy",
-        "icon": "🔢",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/numpy/numpy-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_Rmvb-ToL3RQ_bwxG4_ND-0-DT",
         "about": "NumPy is the foundation of Python's scientific computing stack. It provides the high-performance n-dimensional array object and the vectorized mathematical operations that power pandas, scikit-learn, TensorFlow, and PyTorch under the hood.",
@@ -1062,7 +1062,7 @@ roadmap_data = {
     "pandas": {
         "id": "pandas",
         "name": "Pandas",
-        "icon": "🐼",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/pandas/pandas-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvbR85fgbfVRKOiMokUKVupy",
         "about": "Pandas is the go-to Python library for data manipulation and analysis. Built on NumPy, it provides DataFrame and Series objects that make loading, cleaning, transforming, and exploring tabular data fast and expressive.",
@@ -1129,7 +1129,7 @@ roadmap_data = {
     "seaborn": {
         "id": "seaborn",
         "name": "Seaborn",
-        "icon": "📊",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/matplotlib/matplotlib-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvbB1bFGjvS6a8T0mnqawejo",
         "about": "Seaborn is a Python statistical data visualisation library built on Matplotlib. It makes it easy to create attractive, informative plots — heatmaps, pair plots, violin plots, and regression plots — with minimal code, essential for EDA in any data science workflow.",
@@ -1177,7 +1177,7 @@ roadmap_data = {
     "opencv": {
         "id": "opencv",
         "name": "OpenCV",
-        "icon": "👁️",
+        "icon": "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/opencv/opencv-original.svg",
         "status": "not started",
         "playlist": "https://www.youtube.com/playlist?list=PLKnIA16_RmvYXDBJ5WRDuQRSzFJs93pYR",
         "about": "OpenCV (Open Source Computer Vision Library) is the most widely used library for real-time image and video processing. It covers everything from basic image transformations to advanced feature detection, object tracking, and integrating deep learning models for vision tasks.",

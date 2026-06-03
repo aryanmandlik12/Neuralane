@@ -35,9 +35,9 @@
   --cyan:    #1BB68A;
   --red:     #E04A4A;
 
-  /* Header (always navy toned) */
-  --header-bg:     rgba(26,58,107,0.97);
-  --header-border: rgba(255,255,255,0.12);
+  /* Header */
+  --header-bg:     transparent;
+  --header-border: rgba(26,58,107,0.12);
 
   /* Logo colors (light-mode defaults) */
   --logo-node:  #1A3A6B;
@@ -79,7 +79,7 @@
   --sky:    #1A2A3A;
   --accent2: #85B7EB;
 
-  --header-bg:     rgba(10,14,26,0.97);
+  --header-bg:     transparent;
   --header-border: rgba(255,255,255,0.08);
 
   /* Logo colors (dark-mode overrides) */
@@ -193,8 +193,7 @@ a { text-decoration: none; color: inherit; }
   height: 64px;
 }
 
-/* Logo always sits on dark bg (header + auth-left) — force dark-mode palette */
-.site-header,
+/* Auth-left sidebar always has dark bg — force dark-mode palette there */
 .auth-left {
   --logo-node:  #85B7EB;
   --logo-path:  rgba(255,255,255,0.20);
@@ -239,22 +238,21 @@ a { text-decoration: none; color: inherit; }
 .logo-neura { color: var(--logo-neura); }
 .logo-lane  { color: #F5831F; }
 
-/* Back button — white on navy */
 .back-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255,255,255,0.78);
+  color: var(--text2);
   font-size: 0.9rem;
   font-weight: 500;
   padding: 6px 14px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.22);
-  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border2);
+  background: var(--hover);
   transition: all 0.2s;
   white-space: nowrap;
 }
-.back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.15); }
+.back-btn:hover { color: var(--text); border-color: var(--accent); background: var(--hover2); }
 
 .header-actions { display: flex; gap: 10px; align-items: center; }
 
@@ -262,9 +260,9 @@ a { text-decoration: none; color: inherit; }
 .reset-btn {
   padding: 6px 16px;
   border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.7);
+  border: 1px solid var(--border2);
+  background: var(--hover);
+  color: var(--text2);
   font-size: 0.82rem;
   font-weight: 500;
   cursor: pointer;
@@ -465,7 +463,8 @@ a { text-decoration: none; color: inherit; }
   align-items: center;
   justify-content: space-between;
 }
-.card-icon { font-size: 2rem; line-height: 1; }
+.skill-icon-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.card-icon { width: 2.2rem; height: 2.2rem; background: rgba(255,255,255,0.92); border-radius: 8px; padding: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .card-num {
   font-size: 0.75rem;
   font-weight: 600;
@@ -560,7 +559,7 @@ a { text-decoration: none; color: inherit; }
   box-shadow: var(--shadow);
 }
 
-.rh-icon { font-size: 3rem; flex-shrink: 0; }
+.rh-icon { width: 3.5rem; height: 3.5rem; background: rgba(255,255,255,0.92); border-radius: 12px; padding: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .rh-info { flex: 1; min-width: 200px; }
 .rh-badge {
   font-size: 0.72rem;
@@ -910,15 +909,15 @@ svg defs { display: block; }
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.22);
+  background: var(--hover);
+  border: 1px solid var(--border2);
   border-radius: 24px;
   padding: 5px 12px 5px 5px;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
   color: inherit;
 }
-.user-trigger:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.18); }
+.user-trigger:hover { border-color: var(--accent); background: var(--hover2); }
 
 .user-avatar {
   width: 28px;
@@ -933,8 +932,8 @@ svg defs { display: block; }
   color: #fff;
   flex-shrink: 0;
 }
-.user-name { font-size: 0.82rem; font-weight: 600; color: rgba(255,255,255,0.88); }
-.ud-arrow  { font-size: 0.65rem; color: rgba(255,255,255,0.55); transition: transform 0.2s; }
+.user-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+.ud-arrow  { font-size: 0.65rem; color: var(--text2); transition: transform 0.2s; }
 .user-trigger.open .ud-arrow { transform: rotate(180deg); }
 
 /* Dropdown */
@@ -1265,7 +1264,7 @@ svg defs { display: block; }
 
 .spl-row { display: flex; align-items: center; gap: 14px; }
 .spl-left { display: flex; align-items: center; gap: 8px; width: 180px; flex-shrink: 0; }
-.spl-icon { font-size: 1rem; }
+.spl-icon { width: 1.4rem; height: 1.4rem; background: rgba(255,255,255,0.92); border-radius: 4px; padding: 2px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .spl-name { font-size: 0.82rem; font-weight: 500; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .spl-bar-wrap { flex: 1; }
@@ -1298,7 +1297,7 @@ svg defs { display: block; }
 .msc-ongoing:hover { border-color: rgba(245,131,31,0.5); }
 
 .msc-top { display: flex; align-items: center; justify-content: space-between; }
-.msc-icon  { font-size: 1.6rem; }
+.msc-icon  { width: 2rem; height: 2rem; background: rgba(255,255,255,0.92); border-radius: 6px; padding: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .msc-check {
   width: 22px; height: 22px; border-radius: 50%;
   background: var(--teal); color: #fff;
@@ -1347,15 +1346,14 @@ svg defs { display: block; }
    ============================================= */
 .guest-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
 
-/* Login button — ghost white on navy header */
 .guest-login-btn {
   padding: 7px 18px; border-radius: var(--radius-sm);
-  border: 1px solid rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.85);
+  border: 1px solid var(--border2);
+  background: var(--hover);
+  color: var(--text);
   font-size: 0.85rem; font-weight: 600; transition: all 0.2s;
 }
-.guest-login-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; background: rgba(255,255,255,0.15); }
+.guest-login-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--hover2); }
 
 /* Sign Up button — ORANGE CTA */
 .guest-register-btn {
