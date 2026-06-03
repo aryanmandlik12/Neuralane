@@ -120,14 +120,28 @@ def init_db():
     conn.close()
 
 
+_db_ready = False
+
 @app.before_request
 def ensure_db():
+    global _db_ready
+    if not _db_ready:
+        try:
+            init_db()
+            _db_ready = True
+        except Exception as e:
+            app.logger.error(f"init_db failed: {e}")
+            return "Database connection error", 500
+
     uid = session.get("user_id")
     if uid:
-        db   = get_db()
-        user = db_exec(db, "SELECT id FROM users WHERE id = %s", (uid,)).fetchone()
-        db.close()
-        if not user:
+        try:
+            db   = get_db()
+            user = db_exec(db, "SELECT id FROM users WHERE id = %s", (uid,)).fetchone()
+            db.close()
+            if not user:
+                session.clear()
+        except Exception:
             session.clear()
 
 
@@ -481,7 +495,6 @@ def save_theme():
     return jsonify({"success": True})
 
 
-init_db()
-
 if __name__ == "__main__":
+    init_db()
     app.run(debug=True, port=8080)
