@@ -1,4 +1,4 @@
-# 🧠 Neuralane
+# Neuralane
 
 > Full-Stack Web Application | Flask | Frontend Engineering | Web Development
 
